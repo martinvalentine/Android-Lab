@@ -3,7 +3,10 @@ package com.example.lab2;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +21,9 @@ public class Them extends AppCompatActivity {
     private ImageView imageView;
     private Button btnAdd;
     private Button btnCancel;
+    private String img_path;
+    private static final int PICK_IMAGE_REQUEST = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +43,18 @@ public class Them extends AppCompatActivity {
             }
         });
 
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create an intent to pick an image from the device's gallery
+                Intent pickImageIntent = new Intent(Intent.ACTION_PICK);
+                pickImageIntent.setType("image/*");
+
+                // Start the activity to select an image
+                startActivityForResult(pickImageIntent, PICK_IMAGE_REQUEST);
+            }
+        });
+
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -53,26 +71,35 @@ public class Them extends AppCompatActivity {
                     b.putInt("Id", id);
                     b.putString("Name", name);
                     b.putString("Phone", phone);
-
+                    b.putString("Image", img_path);
                     intent.putExtras(b);
                     setResult(150, intent);
                     finish();
                 }
-
-                }
-
+            }
         });
-
-
     }
-//    public boolean validatePhone(EditText phone) {
-//        String regexStr = "^[0-9]$";
-//        String number=phone.getText().toString();
-//        if(number.toString().length() < 10 || number.toString().length() > 13 || number.matches(regexStr) == false) {
-//            return false;
-//        }
-//        return true;
-//    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            // Get the URI of the selected image
+            Uri selectedImageUri = data.getData();
+            img_path = getRealPathFromURI(selectedImageUri);
+            // Set the selected image to the ImageView
+            imageView.setImageURI(selectedImageUri);
+        }
+    }
+    private String getRealPathFromURI(Uri contentUri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(contentUri, projection, null, null, null);
+        if (cursor == null) return null;
+        cursor.moveToFirst();
+        int columnIndex = cursor.getColumnIndex(projection[0]);
+        String picturePath = cursor.getString(columnIndex);
+        cursor.close();
+        return picturePath;
+    }
 }

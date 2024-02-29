@@ -7,11 +7,19 @@
     android:orientation="vertical"
     tools:context=".Them">
 
+    <!-- ImageView to display the selected image -->
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_launcher_background" />
+        android:src="@drawable/placeholder_image" /> <!-- Placeholder image -->
+
+    <!-- Button to select an image -->
+    <Button
+        android:id="@+id/btnSelectImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Image" />
 
     <EditText
         android:id="@+id/edId"

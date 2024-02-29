@@ -1,13 +1,19 @@
 package com.example.lab2;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -24,6 +30,7 @@ import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int PERMISSON_REQUEST_CODE = 111;
     private EditText edName;
     private EditText edPhone;
     private CheckBox checkBox;
@@ -32,6 +39,18 @@ public class MainActivity extends AppCompatActivity {
     private ListView lstContact;
     private ArrayList<Contact> ContactList;
     protected Adapter ListAdapter;
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSON_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, you can proceed with accessing the storage.
+            } else {
+                // Permission denied, handle accordingly.
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,11 +61,17 @@ public class MainActivity extends AppCompatActivity {
 //        checkBox = findViewById(R.id.checkBox);
         btnThem = findViewById(R.id.btnThem);
         btnXoa = findViewById(R.id.btnXoa);
+        Log.d("a2", "onCreate: ");
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSON_REQUEST_CODE);
+        }
+
         lstContact = findViewById(R.id.lstContact);
 
         ContactList = new ArrayList<Contact>();
-        ContactList.add(new Contact(1, "Nguyễn Văn A","0913023232", false,"Image"));
-        ContactList.add(new Contact(2, "Lê A","0913023232", false,"Image"));
+       // ContactList.add(new Contact(1, "Nguyễn Văn A","0913023232", false,""));
+       // ContactList.add(new Contact(2, "Lê A","0913023232", false,"Image"));
         ListAdapter = new Adapter(ContactList,this);
         lstContact.setAdapter(ListAdapter);
 
@@ -109,20 +134,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Bundle b = data.getExtras();
-        int id = b.getInt("Id");
-        String name = b.getString("Name");
-        String phone = b.getString("Phone");
-        String image = b.getString("Image");
-            Contact newcontact = new Contact(id, name,phone, false,image);
-            if(requestCode == 100 && resultCode ==150){
-                //truong hop them
-                ContactList.add(newcontact);
-                ListAdapter.notifyDataSetChanged();
+        if (data != null) {
+            Bundle b = data.getExtras();
+            if (b != null) {
+                int id = b.getInt("Id");
+                String name = b.getString("Name");
+                String phone = b.getString("Phone");
+                String image = b.getString("Image");
+
+                Contact newcontact = new Contact(id, name, phone, false, image);
+                if (requestCode == 100 && resultCode == 150) {
+                    // Trường hợp thêm
+                    ContactList.add(newcontact);
+                    ListAdapter.notifyDataSetChanged();
+                }
             }
-
-
-
+        }
     }
 
 
