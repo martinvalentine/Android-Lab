@@ -2,6 +2,7 @@ package com.example.lab2;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     Button addButton;
     Button deleteButton;
     int selectedItem;
+    String imageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,19 +80,31 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Bundle b = data.getExtras();
-        int id = b.getInt("ID");
-        String fullName = b.getString("Name");
-        String phone = b.getString("PhoneNumber");
-        String imageuri = b.getString("Image");
-        String email = b.getString("Email");
-        Person item = new Person(id, fullName, phone, email, imageuri, false);
-        if(requestCode == 150 && resultCode == 200){
-            listContact.add(item);
-            contactAdapter.notifyDataSetChanged();
-        }
-        else if(resultCode == RESULT_CANCELED){
-            Log.v("Error", "SomeThing error");
+
+        if (data != null) {
+            Bundle b = data.getExtras();
+            int id = b.getInt("ID");
+            String fullName = b.getString("Name");
+            String phone = b.getString("PhoneNumber");
+            String imageuri = b.getString("Image");
+            String email = b.getString("Email");
+            Person item = new Person(id, fullName, phone, email, imageuri, false);
+            if(requestCode == 150 && resultCode == 200){
+                listContact.add(item);
+                contactAdapter.notifyDataSetChanged();
+            } else if(resultCode == RESULT_CANCELED){
+                Log.v("Error", "SomeThing error");
+            } else if (requestCode == 175 && resultCode == 250) {
+                // Set the data has changed from the EditActivity to the item in listContact
+                listContact.get(selectedItem).setName(fullName);
+                listContact.get(selectedItem).setPhoneNumber(phone);
+                listContact.get(selectedItem).setEmail(email);
+                listContact.get(selectedItem).setPicture(imageuri);
+                contactAdapter.notifyDataSetChanged();
+
+            }
+        } else if(resultCode == RESULT_CANCELED){
+            // Do nothing
         }
     }
 
@@ -109,8 +123,43 @@ public class MainActivity extends AppCompatActivity {
         Person p = listContact.get(selectedItem);
 
         // Handle selected item
-        if (item.getItemId() == R.id.menuEdit)
+        if (item.getItemId() == R.id.menuDelete) {
+            // Show dialog to confirm delete
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Delete");
+            builder.setMessage("Do you want to delete this contact?");
+            builder.setPositiveButton("Yes", (dialog, which) -> {
+                // Remove the selected item from the list
+                listContact.remove(selectedItem);
+                contactAdapter.notifyDataSetChanged();
+            });
+
+            builder.setNegativeButton("No", (dialog, which) -> {
+                // Do nothing if the user selects "No"
+            });
+
+            // Show the dialog
+            builder.show();
+        } else if (item.getItemId() == R.id.menuEdit) // handle the edit item
         {
+            imageUri = p.getPicture();
+            Intent intent = new Intent(MainActivity.this, EditActivity.class);
+            Bundle dataPack = new Bundle();
+            // Pass data to the EditActivity
+            dataPack.putInt("ID", p.getId());
+            dataPack.putString("Name", p.getName());
+            dataPack.putString("Email", p.getEmail());
+            dataPack.putString("PhoneNumber", p.getPhoneNumber());
+            dataPack.putString("Image", imageUri);
+            intent.putExtras(dataPack);
+            startActivityForResult(intent, 175);
+        } else if (item.getItemId() == R.id.menuCall) {
+
+        } else if (item.getItemId() == R.id.menuMail) {
+
+        } else if (item.getItemId() == R.id.menuSMS){
+
+        } else if (item.getItemId() == R.id.menuFacebook) {
 
         }
         return super.onContextItemSelected(item);

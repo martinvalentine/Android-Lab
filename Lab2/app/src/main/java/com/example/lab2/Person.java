@@ -64,4 +64,5 @@ public class Person {
     public void setPicture(String picture) {
         this.picture = picture;
     }
+
 }

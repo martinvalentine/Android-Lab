@@ -9,30 +9,39 @@
         <CheckBox
             android:id="@+id/contactCheckBox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <ImageView
                 android:id="@+id/contactImage"
-                android:layout_width="50dp"
-                android:layout_height="50dp"/>
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"/>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginStart="20dp">
                 <TextView
                     android:id="@+id/contactName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=""/>
-                <TextView
-                    android:id="@+id/contactEmail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text=""/>
+                    android:text=""
+                    android:paddingBottom="3dp"/>
                 <TextView
                     android:id="@+id/contactPhoneNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:paddingBottom="3dp"/>
+                <TextView
+                    android:id="@+id/contactEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=""/>

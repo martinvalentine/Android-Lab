@@ -3,12 +3,18 @@ package com.example.lab2;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 public class AddActivity extends AppCompatActivity {
     EditText id;
@@ -29,9 +35,10 @@ public class AddActivity extends AppCompatActivity {
         name = findViewById(R.id.contactAddName);
         phoneNumber = findViewById(R.id.contactAddPhoneNumber);
         email = findViewById(R.id.contactAddEmail);
-        picture = findViewById(R.id.contactAddImage);
         saveButton = findViewById(R.id.btn_save);
         cancelButton = findViewById(R.id.btn_cancel);
+        picture = findViewById(R.id.contactAddImage);
+
 
         // set the on click listener to the cancel button
         cancelButton.setOnClickListener(v -> {
@@ -65,6 +72,7 @@ public class AddActivity extends AppCompatActivity {
                 startActivityForResult(intent, 100);
             }
         });
+
 
     }
 
