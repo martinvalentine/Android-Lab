@@ -7,11 +7,19 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <EditText
-        android:id="@+id/edittext_search"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:hint="Enter name to search"/>
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/edittext_search"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:hint="Enter name to search"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
 
     <ListView
         android:id="@+id/listContact"

@@ -5,7 +5,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -14,10 +16,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -74,7 +79,46 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent,150);
             }
         });
+
+        // set the on click listener to the delete button to delete the checked item
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<Person> phanTuCanLoaiBo = new ArrayList<>();
+
+                for (int i = listContact.size() - 1; i >= 0; i--) {
+                    if (listContact.get(i).isCheck()) {
+                        phanTuCanLoaiBo.add(listContact.get(i));
+                    }
+                }
+
+                AlertDialog.Builder dg= new AlertDialog.Builder(MainActivity.this);
+                dg.setTitle("Thông báo");
+                dg.setMessage("Bạn có chắc chắn muốn xóa không?");
+                dg.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listContact.removeAll(phanTuCanLoaiBo);
+                        personList.setAdapter(contactAdapter);
+
+                    }
+                });
+                dg.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                AlertDialog al = dg.create();
+                al.show();
+            }
+        });
+
     }
+
+
+
+    // TO-DO: Handle the search button
 
     // Handle the result from the AddActivity
     @Override
@@ -154,13 +198,27 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtras(dataPack);
             startActivityForResult(intent, 175);
         } else if (item.getItemId() == R.id.menuCall) {
+            // Hanlded the call item to redirect to the phone app to call the phone of the item
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:" + p.getPhoneNumber()));
+            startActivity(intent);
 
         } else if (item.getItemId() == R.id.menuMail) {
+            // Handle the mail item to redirect to the mail app to send a mail to the email of the item
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.parse("mailto:" + p.getEmail()));
+            startActivity(intent);
 
         } else if (item.getItemId() == R.id.menuSMS){
-
+            // Handle the SMS item to redirect to the message app to send a message to the phone number of the item
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.parse("smsto:" + p.getPhoneNumber()));
+            startActivity(intent);
         } else if (item.getItemId() == R.id.menuFacebook) {
-
+            // Handle the Facebook item to redirect to the Facebook app to send a message to the phone number of the item
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(Uri.parse("https://www.facebook.com/") + p.getName().toLowerCase().toString()));
+            startActivity(intent);
         }
         return super.onContextItemSelected(item);
     }
