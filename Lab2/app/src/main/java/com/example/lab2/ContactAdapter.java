@@ -72,23 +72,10 @@ public class ContactAdapter extends BaseAdapter {
         checkBox.setChecked(data.get(position).isCheck());
 
         // handle the checkbox click event
-        checkBox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checkBox.isChecked()) {
-                    data.get(position).setCheck(true);
-                } else {
-                    data.get(position).setCheck(false);
-                }
-            }
-        });
-
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (checkBox.isChecked()) {
-                    data.get(position).setCheck(true);
-                }
+                    data.get(position).setCheck(isChecked);
             }
         });
 
