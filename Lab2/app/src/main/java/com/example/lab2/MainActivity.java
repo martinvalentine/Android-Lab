@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     Button deleteButton;
     int selectedItem;
     String imageUri;
+    MyDB db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,14 +50,26 @@ public class MainActivity extends AppCompatActivity {
         // Register context menu for List contact
         registerForContextMenu(personList);
 
+        // Create a new database
+        db = new MyDB(this, "ContactDB", null, 1);
+
+        // Remove all items in the database
+//        db.deleteAllContact();
         // create a new array list
         listContact = new ArrayList<>();
 
         // add data to the array list
-        listContact.add(new Person(1, "John Doe", "1234567890", "ntq@gmail.com", "android.resource://com.example.lab2/drawable/cato1", false));
-        listContact.add(new Person(2, "Jane Doe", "1234567890", "jqkat@gmail.com", "android.resource://com.example.lab2/drawable/cato2", false));
-        listContact.add(new Person(3, "John Smith", "1234567890", "akoyeuem@gmail.com", "android.resource://com.example.lab2/drawable/cato3", false));
-        listContact.add(new Person(4, "Jane Smith", "1234567890", "meoOggy@gmail.com", "android.resource://com.example.lab2/drawable/cato4", false));
+//        db.addContact(new Person(1, "John Doe", "1234567890", "ntq@gmail.com", "android.resource://com.example.lab2/drawable/cato1", false));
+//        db.addContact((new Person(2, "Jane Doe", "1234567890", "jqkat@gmail.com", "android.resource://com.example.lab2/drawable/cato2", false)));
+//        db.addContact((new Person(3, "John Smith", "1234567890", "akoyeuem@gmail.com", "android.resource://com.example.lab2/drawable/cato3", false)));
+//        db.addContact((new Person(4, "Jane Smith", "1234567890", "meoOggy@gmail.com", "android.resource://com.example.lab2/drawable/cato4", false)));
+//        db.addContact((new Person(5, "Justin Bieber", "1234567890", "meoOggy@gmail.com", "android.resource://com.example.lab2/drawable/cato5", false)));
+//        db.addContact((new Person(6, "The Chainsmokers", "1234567890", "meoOggy@gmail.com", "android.resource://com.example.lab2/drawable/cato6", false)));
+//        db.addContact((new Person(7, "G-Eazy", "1234567890", "meoOggy@gmail.com", "android.resource://com.example.lab2/drawable/cato7", false)));
+//        db.addContact((new Person(8, "Kendrick Lamar", "1234567890", "meoOggy@gmail.com", "android.resource://com.example.lab2/drawable/cato8", false)));
+
+        // Return data to listContact
+        listContact = db.getAllContact();
 
         // create a new contact adapter
         contactAdapter = new ContactAdapter(listContact, this);
@@ -99,6 +112,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         listContact.removeAll(phanTuCanLoaiBo);
+                        for (Person p : phanTuCanLoaiBo) {
+                            db.deleteContact(p.getId());
+                        }
                         personList.setAdapter(contactAdapter);
 
                     }
@@ -115,9 +131,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
-
-
     // TO-DO: Handle the search button
 
     // Handle the result from the AddActivity
@@ -135,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
             Person item = new Person(id, fullName, phone, email, imageuri, false);
             if(requestCode == 150 && resultCode == 200){
                 listContact.add(item);
+                db.addContact(item);
                 contactAdapter.notifyDataSetChanged();
             } else if(resultCode == RESULT_CANCELED){
                 Log.v("Error", "SomeThing error");
@@ -144,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
                 listContact.get(selectedItem).setPhoneNumber(phone);
                 listContact.get(selectedItem).setEmail(email);
                 listContact.get(selectedItem).setPicture(imageuri);
+                db.updateContact(item);
                 contactAdapter.notifyDataSetChanged();
 
             }
@@ -175,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
             builder.setPositiveButton("Yes", (dialog, which) -> {
                 // Remove the selected item from the list
                 listContact.remove(selectedItem);
+                db.deleteContact(p.getId());
                 contactAdapter.notifyDataSetChanged();
             });
 

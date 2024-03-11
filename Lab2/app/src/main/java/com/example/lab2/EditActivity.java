@@ -1,6 +1,5 @@
 package com.example.lab2;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -10,7 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 public class EditActivity extends AppCompatActivity {
 
@@ -21,7 +21,7 @@ public class EditActivity extends AppCompatActivity {
     ImageView picture;
     Button saveChangeButton;
     Button cancelChangeButton;
-    String imageUri;
+    String imagePath;
 
 
     @Override
@@ -53,8 +53,9 @@ public class EditActivity extends AppCompatActivity {
             name.setText(data.getString("Name"));
             phoneNumber.setText(data.getString("PhoneNumber"));
             email.setText(data.getString("Email"));
-            imageUri = data.getString("Image");
-            picture.setImageURI(Uri.parse(imageUri));
+            imagePath = data.getString("Image");
+            Uri imageUri = Uri.parse(imagePath);
+            Glide.with(this).load(imageUri).into(picture);
         }
 
         // set the on click listener to the picture
@@ -79,7 +80,7 @@ public class EditActivity extends AppCompatActivity {
                 dataPack.putString("Name", name.getText().toString());
                 dataPack.putString("Email", email.getText().toString());
                 dataPack.putString("PhoneNumber", phoneNumber.getText().toString());
-                dataPack.putString("Image", imageUri);
+                dataPack.putString("Image", imagePath);
                 intent.putExtras(dataPack);
                 setResult(250, intent); // Result code
                 finish();
@@ -92,7 +93,7 @@ public class EditActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 100 && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData().toString();
+            imagePath = data.getData().toString();
             picture.setImageURI(data.getData());
         }
     }

@@ -25,10 +25,14 @@ public class AddActivity extends AppCompatActivity {
     Button saveButton;
     Button cancelButton;
     String imageUri;
+    MyDB db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
+
+        // initialize the database
+        db = new MyDB(this, "ContactDB", null, 1);
 
         // initialize the views
         id = findViewById(R.id.contactID);
@@ -51,6 +55,7 @@ public class AddActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent();
                 Bundle dataPack = new Bundle();
+
                 dataPack.putInt("ID", Integer.parseInt(id.getText().toString()));
                 dataPack.putString("Name", name.getText().toString());
                 dataPack.putString("Email", email.getText().toString());
@@ -58,6 +63,10 @@ public class AddActivity extends AppCompatActivity {
                 dataPack.putString("Image", imageUri);
                 intent.putExtras(dataPack);
                 setResult(200, intent); // Result code
+                // Create a new person object
+                Person person = new Person(Integer.parseInt(id.getText().toString()), name.getText().toString(), phoneNumber.getText().toString(), email.getText().toString(), imageUri,false);
+                // Add the person to the database
+                db.addContact(person);
                 finish();
             }
         });
@@ -72,8 +81,6 @@ public class AddActivity extends AppCompatActivity {
                 startActivityForResult(intent, 100);
             }
         });
-
-
     }
 
     // handle the result from the picture intent

@@ -11,6 +11,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 
 public class ContactAdapter extends BaseAdapter {
@@ -68,8 +70,9 @@ public class ContactAdapter extends BaseAdapter {
         name.setText(data.get(position).getName());
         phoneNumber.setText(data.get(position).getPhoneNumber());
         email.setText(data.get(position).getEmail());
-        picture.setImageURI(Uri.parse(data.get(position).getPicture()));
-        checkBox.setChecked(data.get(position).isCheck());
+        // set the picture to the image view using library
+        Uri imageUri = Uri.parse(data.get(position).getPicture());
+        Glide.with(activity).load(imageUri).into(picture);
 
         // handle the checkbox click event
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
