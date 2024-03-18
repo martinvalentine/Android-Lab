@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,9 +17,12 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
-public class ContactAdapter extends BaseAdapter {
+public class ContactAdapter extends BaseAdapter implements Filterable {
     // get data to convert to view
     private ArrayList<Person> data;
+
+    //Filter data
+    private ArrayList<Person> dataBackup;
 
     // create a layout inflater
     private LayoutInflater inflater;
@@ -86,4 +91,45 @@ public class ContactAdapter extends BaseAdapter {
     }
 
 
+    @Override
+    public Filter getFilter() {
+        Filter f = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults fr = new FilterResults();
+                // Back up data: save the original data to dataBackup
+                if (dataBackup == null) {
+                    dataBackup = new ArrayList<>(data);
+                }
+
+                // If string to filter is null or empty, return the original data
+                if (constraint == null || constraint.length() == 0) {
+                    fr.count = dataBackup.size();
+                    fr.values = dataBackup;
+                }
+                // If not null or empty, filter the data
+                else {
+                    ArrayList<Person> filteredData = new ArrayList<>();
+                    for (Person p : dataBackup) {
+                        if (p.getName().toLowerCase().contains(constraint.toString().toLowerCase())) {
+                            filteredData.add(p);
+                        }
+                    }
+                    fr.count = filteredData.size();
+                    fr.values = filteredData;
+                }
+                return fr;
+            }
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                data = new ArrayList<Person>();
+                ArrayList<Person> tmp = (ArrayList<Person>) results.values;
+                for (Person p : tmp) {
+                    data.add(p);
+                }
+                notifyDataSetChanged();
+            }
+        };
+        return f;
+    }
 }
