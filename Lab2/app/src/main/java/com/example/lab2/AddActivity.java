@@ -1,20 +1,28 @@
 package com.example.lab2;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
+import android.content.ContentProviderOperation;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class AddActivity extends AppCompatActivity {
     EditText id;
@@ -30,6 +38,10 @@ public class AddActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
+
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.WRITE_CONTACTS},
+                PackageManager.PERMISSION_GRANTED);
 
         // initialize the database
         db = new MyDB(this, "ContactDB", null, 1);
@@ -63,10 +75,10 @@ public class AddActivity extends AppCompatActivity {
                 dataPack.putString("Image", imageUri);
                 intent.putExtras(dataPack);
                 setResult(200, intent); // Result code
-                // Create a new person object
-                Person person = new Person(Integer.parseInt(id.getText().toString()), name.getText().toString(), phoneNumber.getText().toString(), email.getText().toString(), imageUri,false);
-                // Add the person to the database
-                db.addContact(person);
+
+                // Add contact to Contact Application
+                buttonAddContact(v);
+
                 finish();
             }
         });
@@ -92,4 +104,80 @@ public class AddActivity extends AppCompatActivity {
             picture.setImageURI(data.getData());
         }
     }
+
+    // Add contact to phone
+    public void buttonAddContact(View view){
+        ArrayList<ContentProviderOperation> contentProviderOperations
+                = new ArrayList<ContentProviderOperation>();
+
+        contentProviderOperations.add(ContentProviderOperation.newInsert(
+                        ContactsContract.RawContacts.CONTENT_URI)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                .build());
+
+        // Adding Name
+        contentProviderOperations.add(ContentProviderOperation
+                .newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,0)
+                .withValue(ContactsContract.Data.MIMETYPE,
+                        ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                        name.getText().toString())
+                .build());
+
+        // Adding Number
+        contentProviderOperations.add(ContentProviderOperation
+                .newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,0)
+                .withValue(ContactsContract.Data.MIMETYPE,
+                        ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER,
+                        phoneNumber.getText().toString())
+                .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+                        ContactsContract.CommonDataKinds.Phone.TYPE_WORK)
+                .build());
+
+        // Adding Email
+        contentProviderOperations.add(ContentProviderOperation
+                .newInsert(ContactsContract.Data.CONTENT_URI)
+                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,0)
+                .withValue(ContactsContract.Data.MIMETYPE,
+                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+                .withValue(ContactsContract.CommonDataKinds.Email.DATA,
+                        email.getText().toString())
+                .withValue(ContactsContract.CommonDataKinds.Email.TYPE,
+                        ContactsContract.CommonDataKinds.Email.TYPE_WORK)
+                .build());
+
+        // Adding Image
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(Uri.parse(imageUri));
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            if (bitmap != null) {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+                byte[] data = stream.toByteArray();
+                contentProviderOperations.add(ContentProviderOperation
+                        .newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                        .withValue(ContactsContract.Data.MIMETYPE,
+                                ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE)
+                        .withValue(ContactsContract.CommonDataKinds.Photo.PHOTO, data)
+                        .build());
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        // Add contact to phone
+        try {
+            getContentResolver().applyBatch(ContactsContract.AUTHORITY, contentProviderOperations);
+            Toast.makeText(this, "Contact added successfully", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to add contact", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

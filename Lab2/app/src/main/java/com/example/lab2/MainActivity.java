@@ -4,11 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.Manifest;
 
+import android.content.ContentProviderOperation;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -28,6 +33,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+
     ContactAdapter contactAdapter;
     ArrayList<Person> listContact;
     EditText search;
@@ -37,6 +43,12 @@ public class MainActivity extends AppCompatActivity {
     int selectedItem;
     String imageUri;
     MyDB db;
+
+    // Request code for READ_CONTACTS. It can be any number
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 1234;
+
+    // declare Content Provider
+    ContentProvider contentProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +83,10 @@ public class MainActivity extends AppCompatActivity {
 //        db.addContact((new Person(8, "Kendrick Lamar", "1234567890", "meoOggy@gmail.com", "android.resource://com.example.lab2/drawable/cato8", false)));
 
         // Return data to listContact
-        listContact = db.getAllContact();
+//        listContact = db.getAllContact();
+
+        // Show contact from content provider Contact application
+        showContact();
 
         // create a new contact adapter
         contactAdapter = new ContactAdapter(listContact, this);
@@ -209,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
             builder.setPositiveButton("Yes", (dialog, which) -> {
                 // Remove the selected item from the list
                 listContact.remove(selectedItem);
-                db.deleteContact(p.getId());
+//                db.deleteContact(p.getId());
                 contactAdapter.notifyDataSetChanged();
             });
 
@@ -256,5 +271,18 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
         return super.onContextItemSelected(item);
+    }
+
+    // Handle content provider
+    private void showContact() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
+            // After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
+        } else {
+            contentProvider = new ContentProvider(this);
+            listContact = contentProvider.getAllContact();
+            contactAdapter = new ContactAdapter(listContact, this);
+            personList.setAdapter(contactAdapter);
+        }
     }
 }
