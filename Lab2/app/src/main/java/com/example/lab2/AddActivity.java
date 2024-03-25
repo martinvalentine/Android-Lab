@@ -110,11 +110,23 @@ public class AddActivity extends AppCompatActivity {
         ArrayList<ContentProviderOperation> contentProviderOperations
                 = new ArrayList<ContentProviderOperation>();
 
+        // Adding insert operation to operations list for raw contact type
         contentProviderOperations.add(ContentProviderOperation.newInsert(
                         ContactsContract.RawContacts.CONTENT_URI)
                 .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
                 .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
                 .build());
+    // ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI):
+        // This creates a new ContentProviderOperation instance to insert a new raw contact.
+        // The ContactsContract.RawContacts.CONTENT_URI is the URI for the raw contacts table in the Contacts content provider.
+    //.withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null): This specifies the account type for the raw contact.
+        // In this case, it is set to null, which means it is a device local contact (not associated with any account).
+    //.withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null):
+        // This specifies the account `name for the raw contact. Again, it is set to null, indicating that it is a device local contact.
+    //.build():
+        // This builds the ContentProviderOperation instance.
+    //contentProviderOperations.add(...):
+        // This adds the built ContentProviderOperation instance to the contentProviderOperations ArrayList.
 
         // Adding Name
         contentProviderOperations.add(ContentProviderOperation

@@ -7,9 +7,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 
 import android.content.ContentProviderOperation;
+import android.content.ContentUris;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -225,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
                 // Remove the selected item from the list
                 listContact.remove(selectedItem);
 //                db.deleteContact(p.getId());
+                deleteContact(p.getId());
                 contactAdapter.notifyDataSetChanged();
             });
 
@@ -283,6 +286,23 @@ public class MainActivity extends AppCompatActivity {
             listContact = contentProvider.getAllContact();
             contactAdapter = new ContactAdapter(listContact, this);
             personList.setAdapter(contactAdapter);
+        }
+    }
+
+    // TODO: Handle delete contact directly to Contact Application
+    // Delete contact from phone
+    public void deleteContact(long rawContactId) {
+        ArrayList<ContentProviderOperation> contentProviderOperations = new ArrayList<>();
+
+        // Delete the raw contact
+        contentProviderOperations.add(ContentProviderOperation.newDelete(
+            ContentUris.withAppendedId(ContactsContract.RawContacts.CONTENT_URI, rawContactId))
+                .build());
+
+        try {
+            getContentResolver().applyBatch(ContactsContract.AUTHORITY, contentProviderOperations);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
